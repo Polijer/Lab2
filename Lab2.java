@@ -5,38 +5,44 @@ import java.util.Scanner;
 public class Lab2 {
     public static Scanner in = new Scanner(System.in);
     public static PrintStream out = System.out;
-    public static boolean isPrime(int a){   //функция проверки число на простое
-        boolean res = true;
-        if (a <= 1) res = false;
-        else {
-            for (int i = 2; i <= (int) Math.sqrt(a); i++) {
-                if (a % i == 0) {
-                    res = false;
-                    break;
-                }
-            }
-        }
-        return res;
-    }
     public static void main(String[] args) throws IOException {
         int n = in.nextInt();
         int[] a = new int[n];
-        int[] prime = new int[n]; //пустой массив для хранения результатов первого пункта
+        boolean b;
+        String[] mask = new String[n];    //маска
+        int[] prime = new int[n];   //пустой массив для хранения результатов первого пункта
         int j = 0;
         for (int i = 0; i < n; i++) {
             a[i] = in.nextInt();
         }
-        for (int i : a) {   //подсчёт количества простых чисел в массиве и заполнение
-                            // результирующего массива простыми числами
-            if (isPrime(i)) {
-                prime[j] = i;
+        for (int i = 0; i < a.length; i++) {    //заполнение маски
+            b = true;
+            if (a[i] == 1) mask[i] = "Единица";
+            else{
+                if (a[i] < 1) mask[i] = "Составное";
+                else {
+                    for (int k = 2; k*k <= a[i]; k++) {
+                        if (a[i] % k == 0) {
+                            mask[i] = "Составное";
+                            b = false;
+                            break;
+                        }
+                    }
+                    if (b) mask[i] = "Простое";
+                }
+            }
+        }
+        for (int i = 0; i < a.length; i++) {   //подсчёт количества простых чисел в массиве и заполнение
+                                               // результирующего массива простыми числами
+            if ("Простое".equals(mask[i])) {
+                prime[j] = a[i];
                 j++;
             }
         }
         int l = j;
-        for (int i : a) {   //заполнение результирующего массива не простыми числами
-            if (!isPrime(i)) {
-                prime[l] = i;
+        for (int i = 0; i < a.length; i++) {   //заполнение результирующего массива не простыми числами
+            if ("Составное".equals(mask[i]) || "Единица".equals(mask[i])) {
+                prime[l] = a[i];
                 l++;
             }
         }
@@ -53,42 +59,23 @@ public class Lab2 {
                 prime[min] = ram;
             }
         }
-        if (j != 0) {
-            for (int i = j - 1; i < prime.length - 1; i++) {    //сортировка методом выбора второй части массива
-                int max = i;
-                for (int k = i + 1; k < prime.length; k++) {
-                    if (prime[max] < prime[k]) {
-                        max = k;
-                    }
-                }
-                if (max != i) {
-                    int ram = prime[i];
-                    prime[i] = prime[max];
-                    prime[max] = ram;
+        for (int i = j; i < prime.length; i++) {
+            int max = i;
+            for (int k = i + 1; k < prime.length; k++) {
+                if (prime[max] < prime[k]) {
+                    max = k;
                 }
             }
-        }
-        else {
-            for (int i = j; i < prime.length; i++) {
-                int max = i;
-                for (int k = i + 1; k < prime.length; k++) {
-                    if (prime[max] < prime[k]) {
-                        max = k;
-                    }
-                }
-                if (max != i) {
-                    int ram = prime[i];
-                    prime[i] = prime[max];
-                    prime[max] = ram;
-                }
+            if (max != i) {
+                int ram = prime[i];
+                prime[i] = prime[max];
+                prime[max] = ram;
             }
         }
         for (int i : prime) out.print(i + " "); //вывод результирующего массива
         out.println("\n" + j);  //вывод количества простых чисел
-        for (int i : a) {   //вывод статуса каждого числа в изначальном массиве
-            if(isPrime(i)) out.print("Простое ");
-            else if (i == 1) out.print("Единица ");
-                else out.print("Составное ");
+        for (String i : mask) {   //вывод статуса каждого числа в изначальном массиве
+            out.print(i + " ");
         }
         for (int i = 0; i < a.length; i++) {    //замена каждого элемента его суммой цифр
             int sum = 0;
